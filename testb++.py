@@ -40,62 +40,6 @@ def load_module_file(name):
         with open(module_path, "r", encoding="utf-16") as f:
             return f.read()
 
-
-CURRENT_VERSION = "4.0"
-
-LATEST_VERSION_URL = "https://raw.githubusercontent.com/<username>/<repo>/main/latest.txt"
-LATEST_EXE_URL     = "https://raw.githubusercontent.com/<username>/<repo>/main/bpp.exe"
-
-
-def check_for_update():
-    try:
-        version = requests.get(LATEST_VERSION_URL, timeout=5).text.strip()
-        if version != CURRENT_VERSION:
-            return version
-    except Exception:
-        return False
-    return False
-
-
-def download_update():
-    temp_path = os.path.join(tempfile.gettempdir(), "bpp_new.exe")
-    with requests.get(LATEST_EXE_URL, stream=True) as r:
-        r.raise_for_status()
-        with open(temp_path, "wb") as f:
-            for chunk in r.iter_content(8192):
-                f.write(chunk)
-    return temp_path
-
-
-def apply_update(new_exe):
-    old_exe = sys.executable
-    backup = old_exe + ".old"
-
-    # Delete old backup if exists
-    if os.path.exists(backup):
-        os.remove(backup)
-
-    # Backup existing exe
-    shutil.move(old_exe, backup)
-    # Replace with new
-    shutil.move(new_exe, old_exe)
-
-    # Relaunch new version
-    subprocess.Popen([old_exe])
-    sys.exit(0)
-
-
-def auto_update():
-    new_ver = check_for_update()
-    if not new_ver:
-        return
-
-    print(f"New version available: {new_ver}")
-    print("Updating B++ automatically...")
-
-    new_exe = download_update()
-    apply_update(new_exe)
-
 # =============================
 # Tokenizer
 # =============================
@@ -898,3 +842,4 @@ if __name__ == "__main__":
         run_file(sys.argv[1])
     else:
         repl()
+
